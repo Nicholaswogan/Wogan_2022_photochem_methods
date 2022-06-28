@@ -1,0 +1,218 @@
+% Define document class
+\documentclass{article}
+\usepackage{natbib}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage[toc,page]{appendix}
+
+\begin{document}
+
+% Title
+\title{The \emph{Photochem} photochemical model}
+\author{Nicholas Wogan}
+\maketitle
+
+% Main body with filler text
+\section{Derivation}
+\label{sec:methods}
+
+Below, we describe the equations governing our 1-dimensional photochemical model. This derivation borrows heavily from Catling and Kasting (2017) \citep{Catling_2017}, Appendix B.
+
+
+\subsection{The Continuity Equation}
+A one-dimensional photochemical model is governed by a simplification of the continuity equation:
+
+\begin{equation} \label{eq:continuity}
+\frac{\partial n_{i}}{\partial t} = - \frac{\partial}{\partial z}\Phi_{i} + P_{i} - L_{i} + R_{\text{i,\ rainout}} + Q_{\text{i,\ lightning}}
+\end{equation}
+Table \ref{tab:variables} defines all the variables and their
+units. Index $i$ refers to either a gas or a particle. The flux for gases ($\Phi_{i}^\text{gas}$) is determined by eddy and molecular diffusion
+
+\begin{equation} \label{eq:phi_gas}
+\Phi_{i}^\text{gas} = \Phi_{i}^\mathrm{eddy} + \Phi_{i}^\mathrm{molecular} = - Kn\frac{\partial}{\partial z}\left( \frac{n_{i}}{n} \right) - D_{i}n_{i}\left( \frac{1}{n_{i}}\frac{\partial n_{i}}{\partial z} + \frac{1}{H_{i}} + \frac{1 + \alpha_{\text{Ti}}}{T}\frac{\partial T}{\partial z} \right)
+\end{equation}
+The molecular diffusion term in Equation \eqref{eq:phi_gas} is given by Chapter 15 in \cite{Banks_2013}. It assumes gas $i$ is a minor constituent diffusing through a more abundant background. The flux for particles ($\Phi_{i}^\text{particle}$) is determined by eddy diffusion and the rate particles fall through the atmosphere
+
+\begin{equation} \label{eq:phi_particle}
+  \Phi_{i}^\text{particle} = \Phi_{i}^\mathrm{eddy} + \Phi_{i}^\mathrm{fall} = - Kn\frac{\partial}{\partial z}\left( \frac{n_{i}}{n} \right) - w_i n_i
+\end{equation}
+The above system of partial differential equations (PDEs) describes how the number density ($n_{i}$) of each chemical species $i$ changes over altitude and time.
+
+\subsection{Simplifying the Continuity Equation}
+
+In our photochemical model, we solve a simplified version of the continuity equation (Equation \eqref{eq:continuity}) which assumes that the total number density does not change over time ($\partial n / \partial t \approx 0$). This approach is valid for atmospheric transitions which maintain approximately constant surface pressure and atmospheric temperature. For example, our model does not accurately describe the evolution of the atmosphere as it enters a runaway greenhouse state because the total number density vastly increases as water vapor enters the atmosphere. However, our approach is appropriate for steady-state photochemical calculations, which is what most researchers are interested in.
+
+% The constant number density assumption, which all existing photochemical models adopt, is not necessary. In Appendix XXX we describe how one would solve the full continuity equation (Equation \eqref{eq:continuity}). 
+
+Below, we rework Equation \eqref{eq:continuity} with the assumption of constant number density. This process involves considering the evolution of mixing ratios ($f_i$) instead of number densities ($n_i$). The ideal gas law and Dalton's law gives a relation between $f_i$ and $n_i$ (Chapter 1 in \cite{Catling_2017}):
+
+\begin{equation} \label{eq:mix_density}
+  n_i = f_i n
+\end{equation}
+Differentiating Equation \eqref{eq:mix_density} with respect to time yields
+
+\begin{equation} \label{eq:mix_density_der}
+  \frac{\partial n_i}{\partial t} = f_i \frac{\partial n}{\partial t} + n \frac{\partial f_i}{\partial t}
+\end{equation}
+Applying the assumption of constant number density ($\partial n / \partial t = 0$) gives
+
+\begin{equation} \label{eq:mix_density_der1}
+  \frac{\partial n_i}{\partial t} = n \frac{\partial f_i}{\partial t}
+\end{equation}
+We can substitute Equation \eqref{eq:mix_density_der1} into \eqref{eq:continuity}, and rearrange to produce a simplified version of the continuity equation,
+
+\begin{equation} \label{eq:continuity_simple}
+  \boxed{\frac{\partial f_{i}}{\partial t} = - \frac{1}{n}\frac{\partial}{\partial z}\Phi_{i} + \frac{P_{i}}{n} - \frac{L_{i}}{n} + \frac{R_{\text{i,\ rainout}}}{n} + \frac{Q_{\text{i,\ lightning}}}{n}}
+\end{equation}
+Now, we must recast $\Phi_{i}^\text{gas}$ and $\Phi_{i}^\text{particle}$ in terms of mixing ratios instead of number densities. We will start with $\Phi_{i}^\text{gas}$. Differentiating Equation \eqref{eq:mix_density} with respect to $z$ yields
+
+\begin{equation} \label{eq:mr_derivative}
+  \frac{\partial n_i}{\partial z} = f_i \frac{\partial n}{\partial z} + n \frac{\partial f_i}{\partial z}
+\end{equation}
+Differentiating the ideal gas law ($n = P/(kT)$) with respect to $z$ gives
+
+\begin{equation} \label{eq:ideal_gas_derivative}
+  \frac{\partial n}{\partial z} = \frac{\partial}{\partial z}\left(\frac{P}{kT}\right)
+= \frac{1}{kT}\frac{\partial P}{\partial z} - \frac{P}{kT^2} \frac{\partial T}{\partial z}
+\end{equation}
+The hydrostatic equation in combination with the ideal gas law states
+
+\begin{equation} \label{eq:hydrostatic}
+  \frac{\partial P}{\partial z} = -g \rho = \frac{-g P \overline{\mu}}{N_a k T} = \frac{-P}{H_a}
+\end{equation}
+Where $H_a$ is the scale height of the atmosphere. Substituting Equation \eqref{eq:hydrostatic} into Equation \eqref{eq:ideal_gas_derivative}, gives
+
+\begin{equation} \label{eq:ideal_gas_derivative_1}
+  \frac{\partial n}{\partial z} = \frac{1}{kT} \frac{-P}{H_a} - \frac{P}{kT^2} \frac{\partial T}{\partial z}
+\end{equation}
+Substituting Equation \eqref{eq:ideal_gas_derivative_1} into Equation \eqref{eq:mr_derivative} gives
+
+\begin{align}
+  \frac{\partial n_i}{\partial z} &= f_i \left(-\frac{1}{kT} \frac{P}{H_a} - \frac{P}{kT^2} \frac{\partial T}{\partial z}\right) + n \frac{\partial f_i}{\partial z} \nonumber \\ 
+  &= \frac{n_i}{n} \left(-\frac{1}{kT} \frac{nkT}{H_a} - \frac{nkT}{kT^2} \frac{\partial T}{\partial z}\right) + n \frac{\partial f_i}{\partial z} \nonumber \\
+  &= -\frac{n_i}{H_a} - \frac{n_i}{T} \frac{\partial T}{\partial z} + n \frac{\partial f_i}{\partial z} \label{eq:mr_derivative_1}
+\end{align}
+We can now substitute Equation \eqref{eq:mr_derivative_1} in to Equation \eqref{eq:phi_gas}. After simplifying,
+
+\begin{equation} \label{eq:phi_gas_1}
+  \boxed{\Phi_{i}^\text{gas} = - \left( K + D_{i} \right)n\frac{\partial f_{i}}{\partial z} - \zeta_{i}nf_{i}}
+\end{equation}
+Where $\zeta_{i}$ is given by
+
+\begin{equation}
+  \zeta_{i} = D_{i}\left( \frac{1}{H_{i}} - \frac{1}{H_{a}} + \frac{\alpha_{\text{Ti}}}{T}\frac{\partial T}{\partial z} \right)
+\end{equation}
+Finally, we can re-write Equation \eqref{eq:phi_particle} in terms of mixing ratios using Equation \eqref{eq:mix_density}.
+
+\begin{equation} \label{eq:phi_particle_1}
+  \boxed{\Phi_{i}^\text{particle} = - Kn\frac{\partial f_{i}}{\partial z} - w_i n f_{i}}
+\end{equation}
+
+Equations \eqref{eq:continuity_simple}, \eqref{eq:phi_gas_1} and \eqref{eq:phi_particle_1} are a new, simplified version of the continuity equation, describing how the mixing ratio of gases and particles evolve over time and altitude. These equations have the following assumptions
+\begin{itemize}
+  \item The ideal gas law.
+  \item Constant total number density over time ($\partial n / \partial t \approx 0$).
+  \item The atmosphere is at hydrostatic equilibrium.
+  \item Molecular diffusion terms in Equation \eqref{eq:phi_gas_1} assumes gas $i$ is diffusing through a more abundant background.
+\end{itemize}
+
+\subsection{Finite differencing the model equations}
+We use the ``method of lines'' approach to turn the Equation \eqref{eq:continuity_simple} system of PDEs into a larger system of ordinary differential equations (ODEs). This process involves replacing spatial derivatives with finite difference approximations.
+
+
+\begin{table}
+\centering
+\begin{tabularx}{\linewidth}{p{0.15\linewidth} | p{0.55\linewidth} | p{0.3\linewidth}}
+\hline \hline
+Variable & Definition & Units \\
+\hline
+\(f_{i}\) & Mixing ratio of species \(i\) & dimensionless \\
+\(n_{i}\) & Number density of species \(i\) & molecules
+cm\textsuperscript{-3} \\
+\(z\) & Altitude & cm \\
+\(t\) & Time & seconds \\
+\(n\) & Total number density & molecules
+cm\textsuperscript{-3} \\
+\(P_{i}\) & Total chemical production of species \(i\) & molecules
+cm\textsuperscript{-3} s\textsuperscript{-1} \\
+\(L_{i}\) & Total chemical loss of species \(i\) & molecules
+cm\textsuperscript{-3} s\textsuperscript{-1} \\
+\(R_{\text{i, rainout}}\) & Production and loss of species \(i\) from
+rainout & molecules cm\textsuperscript{-3}
+s\textsuperscript{-1} \\
+\(Q_{\text{i, lightning}}\) & Production and loss of species \(i\)
+from lightning & molecules cm\textsuperscript{-3}
+s\textsuperscript{-1} \\
+\(\Phi_{i}\) & Vertical flux of species \(i\) & molecules
+cm\textsuperscript{-2} s\textsuperscript{-1} \\
+\(K\) & Eddy diffusion coefficient & cm\textsuperscript{2}
+s\textsuperscript{-1} \\
+\(D_{i}\) & Molecular diffusion coefficient & cm\textsuperscript{2}
+s\textsuperscript{-1} \\
+\(H_{i}\) & \(= N_{a}\text{kT}\text{/}\mu_{i}g\), The scale heights of
+species \(i\) & cm \\
+\(H_{a}\) & \(= N_{a}\text{kT}\text{/}\overline{\mu}g\), The average
+scale height. & cm \\
+\(N_{a}\) & Avogadro's number & molecules
+mol\textsuperscript{-1} \\
+\(k\) & Boltzmann's constant & erg K\textsuperscript{-1} \\
+\(\mu\) & Molar mass. \(\overline{\mu}\) is mean molar mass of the
+atmosphere, and \(\mu_{i}\) is the molar mass of species \(i\) & g
+mol\textsuperscript{-1} \\
+\(g\) & Gravitational acceleration & cm
+s\textsuperscript{-2} \\
+\(\alpha_{\text{Ti}}\) & Thermal diffusion coefficient of species \(i\).
+We neglect this term (\(\alpha_{\text{Ti}} = 0\)) &
+dimensionless \\
+\(T\) & Temperature & K \\
+$w_i$ & Fall velocity of a particle & cm s$^{-1}$ \\
+$\eta$ & Dynamic viscosity of air. Equation \eqref{eq:dynamic_viscosity}. & dynes s cm$^{-2}$ \\
+\end{tabularx}
+\caption{Variables in \eqref{eq:continuity}}
+\label{tab:variables}
+\end{table}
+
+\appendix
+\section*{Appendix}
+
+\section{Molecular Diffusion and Fall Velocity}
+
+We assume that the molecular diffusion coefficient is given by the formula (Equation 15.29 in \cite{Banks_2013})
+
+\begin{equation} \label{eq:molec_diffusion_coeff}
+  D_i = 
+  \frac{b_i}{n} = \frac{1.52 \times 10^{18}}{n} \sqrt{\left( \frac{1}{\mu_i} + \frac{1}{\overline{\mu}} \right) T}
+\end{equation}
+Note, this equation is also in Catling and Kasting (2017) \cite{Catling_2017} (Equation B.4), but it contains a typo, omitting a power of 0.5 for the $\left( \frac{1}{\mu_i} + \frac{1}{\overline{\mu}} \right)$ term.
+
+Additionally, we assume that particle fall velocity ($w_i$) is given by stokes law, with a slip correction factor ($C_{c,i}$) following Equation 9.42 in \cite{Seinfeld_2006}.
+
+\begin{equation} \label{eq:stokes_law}
+  w_i = \frac{2}{9} \frac{(\rho_i - \rho)r_i^2}{\eta} C_{c,i}
+\end{equation}
+We approximate the dynamic viscosity of air ($\eta$) with the following empirical relation from Equation 1-36 and Table 1-2 in \cite{White_2006}. This expression is for modern Earth air.
+
+\begin{equation} \label{eq:dynamic_viscosity}
+  \eta = 1.716 \times 10^{-4} \left(\frac{T}{273}\right)^{3/2} \left( \frac{384}{T + 111} \right)
+\end{equation}
+The slip correction factor ($C_{c,i}$), is given by Equation 9.34 in \cite{Seinfeld_2006}.
+
+\begin{equation} \label{eq:slip_correction}
+  C_{c,i} = 1 + \frac{\lambda}{r_i}\left( -1.257 + 0.4 \exp \left(\frac{1.1 r_i}{\lambda}\right) \right)
+\end{equation}
+Here, $\lambda$ is the mean free path, which comes from the kinetic theory of gases (Equation 9.6 in \cite{Seinfeld_2006})
+
+\begin{equation}
+  \lambda = \frac{2 \eta}{n} \sqrt{\frac{\pi N_a}{8 k T \overline{\mu}}}
+\end{equation}
+
+
+%     correct_fac =  1.0_dp + (mean_free_path/partical_radius)* &
+% (1.257e0_dp + 0.4e0_dp*exp((-1.1e0_dp*partical_radius)/(mean_free_path)))
+
+\bibliographystyle{plain}
+\bibliography{bib}
+
+\end{document}
