@@ -4,6 +4,7 @@
   "latex-workshop.latex.autoClean.run": "onBuilt",
   "editor.wordWrap": "on",
   "cSpell.words": [
+    "discretization",
     "Photochem"
   ]
 }
