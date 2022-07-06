@@ -135,7 +135,7 @@ Chemical reactions can also cause nonphysical mixing ratios when using Equation 
 
 We use the finite volume method to discretize Equation \eqref{eq:continuity_simple} allowing an approximate numerical solution. The finite volume method divides the spatial domain ($z$) into grid cells, or finite volumes, in order to approximate the cell-averaged value of the mixing ratio of a species, $f_i$. Approximations to the cell-averaged value of $f_i$ are modified over time by considering the flux of molecules through the edges of the cells, and the sources and sinks of molecules within the cell. The main advantage of this approach is that the approximation conserves molecules, which is not always the case for other PDE discretization methods. Molecule conservation is valuable for understanding whether a model run has reached steady-state, or interrogating the redox fluxes into and out of an atmosphere. Below, we decribe the application of the finite-volume method to Equation \eqref{eq:continuity_simple}. For an in-depth understanding of the finite-volume method, see Leveque (2002) \cite{Leveque_2002}.
 
-Consider an atmosphere that has been vertically divided into $m$ grid-cell (i.e. finite volumes) of thickness $\Delta z^j$. The superscript $j$ refers to a grid cell ($j$ does not refer to a power), where $j = 1$ is the lowest altitude grid-cell $j = m$ highest grid-cell. $z^j$ is the altitude at the center of grid-cell $j$, such that the upper and lower edges of the cell are given by $z^{j+1/2} = z^j + \frac{\Delta z^j}{2}$ and $z^{j-1/2} = z^j - \frac{\Delta z^j}{2}$, respectfully.
+Consider an atmosphere that has been vertically divided into $m$ grid-cell (i.e. finite volumes) of thickness $\Delta z^j$. The superscript $j$ refers to a grid cell ($j$ does not refer to a power), where $j = l$ is the lowest altitude grid-cell $j = m$ highest grid-cell. $z^j$ is the altitude at the center of grid-cell $j$, such that the upper and lower edges of the cell are given by $z^{j+1/2} = z^j + \frac{\Delta z^j}{2}$ and $z^{j-1/2} = z^j - \frac{\Delta z^j}{2}$, respectfully.
 
 Consider a single grid cell between altitudes $z = z^{j-1/2}$ and $z = z^{j+1/2}$. First, we can re-arrange Equation \eqref{eq:continuity_simple} to produce the following
 
@@ -180,9 +180,11 @@ Re-writing Equation \eqref{eq:continuity_simple_conservative1}, substituting in 
   \frac{\partial f_i^j}{\partial t} = - \frac{1}{n^{j}} \frac{\Phi_{i}^{j+1/2} - \Phi_{i}^{j-1/2}}{\Delta z^j} + \frac{\sigma_i^j}{n^{j}}
 \end{equation}
 
-We now must derive expressions for the gas and particle fluxes at grid-cell edges that are accurate and stable for our problem. For fluxes that are diffusion-dominated, a centered approximation is sufficient. However, for an advection-dominated flux, we can use a first-order upwind scheme, because a centered approximation is not stable for advection (Chapter 4 in \cite{Leveque_2002}).
+We now must derive expressions for the gas and particle fluxes at grid-cell edges that are accurate and stable for our problem. 
 
-\subsubsection{Gases}
+% For fluxes that are diffusion-dominated, a centered approximation is sufficient. However, for an advection-dominated flux, we can use a first-order upwind scheme, because a centered approximation is not stable for advection (Chapter 4 in \cite{Leveque_2002}).
+
+\subsubsection{Gases} \label{sec:FV_gases}
 
 In the equation for gas flux (Equation \eqref{eq:phi_gas_1}), the first term is diffusive and the second term is advective. For most all plausible diffusion coefficients and advection velocities the diffusion term dominates, therefore, it is suitable to use a centered finite volume scheme for $\Phi_{i\text{,gas}}^{j+1/2}$ and $\Phi_{i\text{,gas}}^{j-1/2}$ (Equation 4.10 in \cite{Leveque_2002}):
 
@@ -205,54 +207,229 @@ Using an similar procedure, $\Phi_{i\text{,gas}}^{j-1/2}$ is given by
 \begin{equation} \label{eq:phi_gas_m}
   \Phi_{i\text{,gas}}^{j-1/2} = - ( K + D_{i})^{j-1/2} n^{j-1/2} \frac{f_i^{j} - f_i^{j-1}}{\Delta z^{j-1/2}} - (\gamma_{i} n)^{j-1/2} \frac{\Delta z^{j-1}f_i^{j} + \Delta z^{j} f_i^{j-1}}{\Delta z^{j}+\Delta z^{j-1}}
 \end{equation}
-Substituting Equations \eqref{eq:phi_gas_p} and \eqref{eq:phi_gas_m} into Equation \eqref{eq:continuity_simple_approx} and re-arranging gives
+Substituting Equations \eqref{eq:phi_gas_p} and \eqref{eq:phi_gas_m} into Equation \eqref{eq:continuity_simple_approx} and re-arranging gives an equation of the form
 
-\begin{equation}
+\begin{equation} \label{eq:dfdt_general}
 \begin{split} 
-  \frac{\partial f_{i \in \text{gas}}^j}{\partial t} &= (A_{i\text{,gas}}^{j\text{,upper}}+ B_{i\text{,gas}}^{j\text{,upper}}) f_{i}^{j+1} \\
-  &+ (A_{i\text{,gas}}^{j\text{,center}} + B_{i\text{,gas}}^{j\text{,center}}) f_{i}^{j} \\
-  &+ (A_{i\text{,gas}}^{j\text{,lower}} + B_{i\text{,gas}}^{j\text{,lower}}) f_{i}^{j-1} \\
+  \frac{\partial f_{i}^j}{\partial t} &= (A_{i}^{j\text{,upper}}+ B_{i}^{j\text{,upper}}) f_{i}^{j+1} \\
+  &+ (A_{i}^{j\text{,center}} + B_{i}^{j\text{,center}}) f_{i}^{j} \\
+  &+ (A_{i}^{j\text{,lower}} + B_{i}^{j\text{,lower}}) f_{i}^{j-1} \\
   &+ \frac{\sigma_i^j}{n^{j}}
 \end{split}
 \end{equation}
-Where, the $A$ coefficients (e.g. $A_{i\text{,gas}}^{j\text{,upper}}$) correspond to the diffusive approximations to the cell-edge fluxes:
+% \begin{equation} \label{eq:dfdt_gas}
+% \begin{split} 
+%   \frac{\partial f_{i \in \text{gas}}^j}{\partial t} &= (A_{i\text{,gas}}^{j\text{,upper}}+ B_{i\text{,gas}}^{j\text{,upper}}) f_{i}^{j+1} \\
+%   &+ (A_{i\text{,gas}}^{j\text{,center}} + B_{i\text{,gas}}^{j\text{,center}}) f_{i}^{j} \\
+%   &+ (A_{i\text{,gas}}^{j\text{,lower}} + B_{i\text{,gas}}^{j\text{,lower}}) f_{i}^{j-1} \\
+%   &+ \frac{\sigma_i^j}{n^{j}}
+% \end{split}
+% \end{equation}
+The $A$ coefficients for gases correspond to the diffusive approximations to the cell-edge fluxes:
+
+\begin{equation*}
+\begin{aligned}
+  A_{i\text{,gas}}^{j\text{,upper}} &= A_{i\text{,gas}}^{j,1} \\
+  A_{i\text{,gas}}^{j\text{,center}} &= - A_{i\text{,gas}}^{j,1} - A_{i\text{,gas}}^{j,2} \\
+  A_{i\text{,gas}}^{j\text{,lower}} &= A_{i\text{,gas}}^{j,2}
+\end{aligned}
+\quad\quad\quad
+\begin{aligned}
+  A_{i\text{,gas}}^{j,1} &= \frac{(K + D_{i})^{j+1/2} n^{j+1/2}}{n^j \Delta z^j \Delta z^{j+1/2}} \\
+  A_{i\text{,gas}}^{j,2} &= \frac{(K + D_{i})^{j-1/2} n^{j-1/2}}{n^j \Delta z^j \Delta z^{j-1/2}} 
+\end{aligned}
+\end{equation*}
+The $B$ coefficients for gases correspond to the advection approximations to the cell-edge fluxes:
+
+\begin{equation*}
+\begin{aligned}
+  B_{i\text{,gas}}^{j\text{,upper}} &= B_{i\text{,gas}}^{j,1} \\
+  B_{i\text{,gas}}^{j\text{,center}} &= B_{i\text{,gas}}^{j,2} + B_{i\text{,gas}}^{j,3} \\
+  B_{i\text{,gas}}^{j\text{,lower}} &= B_{i\text{,gas}}^{j,4}
+\end{aligned}
+\quad\quad\quad
+\begin{aligned}
+  B_{i\text{,gas}}^{j,1} &= \frac{(\gamma_{i} n)^{j+1/2}}{n^j \Delta z^j} \frac{\Delta z^{j}}{\Delta z^{j+1}+\Delta z^{j}} \\
+  B_{i\text{,gas}}^{j,2} &= \frac{(\gamma_{i} n)^{j+1/2}}{n^j \Delta z^j} \frac{\Delta z^{j+1}}{\Delta z^{j+1}+\Delta z^{j}} \\
+  B_{i\text{,gas}}^{j,3} &= - \frac{(\gamma_{i} n)^{j-1/2}}{n^j \Delta z^j} \frac{\Delta z^{j-1}}{\Delta z^{j}+\Delta z^{j-1}} \\
+  B_{i\text{,gas}}^{j,4} &= - \frac{(\gamma_{i} n)^{j-1/2}}{n^j \Delta z^j} \frac{\Delta z^{j}}{\Delta z^{j}+\Delta z^{j-1}} 
+\end{aligned}
+\end{equation*}
+The lower boundary condition is the flux through the lower edge of the lowest-altitude cell, $\Phi_{i}^{l-1/2} = \Phi_{i}^\text{lower}$. Similarly, the upper boundary condition is the flux through through the top edge of the highest-altitude cell, $\Phi_{i}^{m+1/2} = \Phi_{i}^\text{upper}$. It follows from Equation \eqref{eq:continuity_simple_approx} that
 
 \begin{align}
-  A_{i\text{,gas}}^{j\text{,upper}} &= A_{i\text{,gas}}^{j,1} \nonumber \\
-  A_{i\text{,gas}}^{j\text{,center}} &= - A_{i\text{,gas}}^{j,1} - A_{i\text{,gas}}^{j,2}  \nonumber \\
-  A_{i\text{,gas}}^{j\text{,lower}} &= A_{i\text{,gas}}^{j,2} \nonumber
+  \frac{\partial f_i^l}{\partial t} &= - \frac{1}{n^{l}} \frac{\Phi_{i}^\text{l+1/2} - \Phi_{i}^\text{lower}}{\Delta z^l} + \frac{\sigma_i^l}{n^{l}} \label{eq:lower_bc} \\
+  \frac{\partial f_i^m}{\partial t} &= - \frac{1}{n^{m}} \frac{\Phi_{i}^\text{upper} - \Phi_{i}^{m-1/2}}{\Delta z^m} + \frac{\sigma_i^m}{n^{m}} \label{eq:upper_bc}
 \end{align}
-Where,
+Plugging in Equation \eqref{eq:phi_gas_p} and \eqref{eq:phi_gas_m} into Equation \eqref{eq:lower_bc} and \eqref{eq:upper_bc} gives the following general expression for the rate mixing ratios change at the boundaries
 
-\begin{align}
-  A_{i\text{,gas}}^{j,1} &= \frac{(K + D_{i})^{j+1/2} n^{j+1/2}}{n^j \Delta z^j \Delta z^{j+1/2}} \nonumber \\
-  A_{i\text{,gas}}^{j,2} &= \frac{(K + D_{i})^{j-1/2} n^{j-1/2}}{n^j \Delta z^j \Delta z^{j-1/2}} \nonumber
-\end{align}
-Also, the $B$ coefficients (e.g. $B_{i\text{,gas}}^{j\text{,upper}}$) correspond to the advection approximations to the cell-edge fluxes:
+\begin{equation} \label{eq:dfdt_boundary}
+  \begin{aligned}
+    \frac{\partial f_{i}^l}{\partial t} &= (A_{i}^{l\text{,upper}}+ B_{i}^{l\text{,upper}}) f_{i}^{l+1} \\
+    &+ (A_{i}^{l\text{,center}} + B_{i}^{l\text{,center}}) f_{i}^{l} \\
+    &+ \frac{\Phi_i^\text{lower}}{n^l \Delta z^l} \\
+    &+ \frac{\sigma_i^l}{n^{l}}
+  \end{aligned}
+  \quad\quad\quad
+  \begin{aligned}
+    \frac{\partial f_{i}^m}{\partial t} &= (A_{i}^{m\text{,center}} + B_{i}^{m\text{,center}}) f_{i}^{m} \\
+    &+ (A_{i}^{m\text{,lower}} + B_{i}^{m\text{,lower}}) f_{i}^{m-1} \\
+    &- \frac{\Phi_i^\text{upper}}{n^m \Delta z^m} \\
+    &+ \frac{\sigma_i^m}{n^{m}}
+  \end{aligned}
+  \end{equation}
+% \begin{equation} \label{eq:dfdt_gas_boundary}
+% \begin{aligned}
+%   \frac{\partial f_{i \in \text{gas}}^l}{\partial t} &= (A_{i\text{,gas}}^{l\text{,upper}}+ B_{i\text{,gas}}^{l\text{,upper}}) f_{i}^{l+1} \\
+%   &+ (A_{i\text{,gas}}^{l\text{,center}} + B_{i\text{,gas}}^{l\text{,center}}) f_{i}^{l} \\
+%   &+ \frac{\Phi_i^\text{lower}}{n^l \Delta z^l} \\
+%   &+ \frac{\sigma_i^l}{n^{l}}
+% \end{aligned}
+% \quad\quad\quad
+% \begin{aligned}
+%   \frac{\partial f_{i \in \text{gas}}^m}{\partial t} &= (A_{i\text{,gas}}^{m\text{,center}} + B_{i\text{,gas}}^{m\text{,center}}) f_{i}^{m} \\
+%   &+ (A_{i\text{,gas}}^{m\text{,lower}} + B_{i\text{,gas}}^{m\text{,lower}}) f_{i}^{m-1} \\
+%   &- \frac{\Phi_i^\text{upper}}{n^m \Delta z^m} \\
+%   &+ \frac{\sigma_i^m}{n^{m}}
+% \end{aligned}
+% \end{equation}
+For gases, the $A$ and $B$ coefficients for the lower boundary are
 
-\begin{align}
-  B_{i\text{,gas}}^{j\text{,upper}} &= B_{i\text{,gas}}^{j,1} \nonumber \\
-  B_{i\text{,gas}}^{j\text{,center}} &= B_{i\text{,gas}}^{j,2} + B_{i\text{,gas}}^{j,3}  \nonumber \\
-  B_{i\text{,gas}}^{j\text{,lower}} &= B_{i\text{,gas}}^{j,4} \nonumber
-\end{align}
-Where,
+\begin{equation*}
+  \begin{aligned}
+  A_{i\text{,gas}}^{l\text{,upper}} &= A_{i\text{,gas}}^{l,1} \\
+  A_{i\text{,gas}}^{l\text{,center}} &= - A_{i\text{,gas}}^{l,1} \\
+  \end{aligned}
+  \quad\quad
+  \begin{aligned}
+  B_{i\text{,gas}}^{l\text{,upper}} &= B_{i\text{,gas}}^{l,1} \\
+  B_{i\text{,gas}}^{j\text{,center}} &= B_{i\text{,gas}}^{l,2} \\
+  \end{aligned}
+\end{equation*}
+and the upper boundary,
 
-\begin{align}
-  B_{i\text{,gas}}^{j,1} &= \frac{(\gamma_{i} n)^{j+1/2}}{n^j \Delta z^j} \frac{\Delta z^{j}}{\Delta z^{j+1}+\Delta z^{j}} \nonumber \\
-  B_{i\text{,gas}}^{j,2} &= \frac{(\gamma_{i} n)^{j+1/2}}{n^j \Delta z^j} \frac{\Delta z^{j+1}}{\Delta z^{j+1}+\Delta z^{j}} \nonumber \\
-  B_{i\text{,gas}}^{j,3} &= - \frac{(\gamma_{i} n)^{j-1/2}}{n^j \Delta z^j} \frac{\Delta z^{j-1}}{\Delta z^{j}+\Delta z^{j-1}} \nonumber \\
-  B_{i\text{,gas}}^{j,4} &= - \frac{(\gamma_{i} n)^{j-1/2}}{n^j \Delta z^j} \frac{\Delta z^{j}}{\Delta z^{j}+\Delta z^{j-1}} \nonumber 
-\end{align}
+\begin{equation*}
+  \begin{aligned}
+  A_{i\text{,gas}}^{m\text{,center}} &= - A_{i\text{,gas}}^{m,2} \\
+  A_{i\text{,gas}}^{m\text{,lower}} &= A_{i\text{,gas}}^{m,2}
+  \end{aligned}
+  \quad\quad
+  \begin{aligned}
+  B_{i\text{,gas}}^{m\text{,center}} &= B_{i\text{,gas}}^{m,3} \\
+  B_{i\text{,gas}}^{m\text{,lower}} &= B_{i\text{,gas}}^{m,4}
+  \end{aligned}
+\end{equation*}
 
-The upper boundary condition is the flux through through the top edge of the highest-altitude cell, $\Phi_{i}^{m+1/2} = \Phi_{i}^\text{upper}$. Similarly, the lower boundary condition is the flux through the lower edge of the lowest-altitude cell, $\Phi_{i}^{1/2} = \Phi_{i}^\text{lower}$. It follows from Equation \eqref{eq:continuity_simple_approx} that
+\subsubsection{Particles} \label{sec:FV_particles}
 
-\begin{align}
-  \frac{\partial f_i^m}{\partial t} &= - \frac{1}{n^{m}} \frac{\Phi_{i}^\text{upper} - \Phi_{i}^{m-1/2}}{\Delta z^m} + \frac{\sigma_i^m}{n^{m}} \\
-  \frac{\partial f_i^1}{\partial t} &= - \frac{1}{n^{1}} \frac{\Phi_{i}^\text{1/2} - \Phi_{i}^\text{lower}}{\Delta z^1} + \frac{\sigma_i^1}{n^{1}}
-\end{align}
+The equation for particle flux (Equation \eqref{eq:phi_gas_1}), contains an advection term representing the falling of particles. This advection can be much stronger than the eddy diffusion term, especially high in the atmosphere. Therefore, for stability, we use a first-order upwind scheme for particle advection and a centered scheme for diffusion. A centered approximation is not stable for advection-dominated transport (Chapter 4 in \cite{Leveque_2002}). We can split the particle flux (Equation \eqref{eq:phi_particle_1}) into diffusive and advection components,
 
-\subsubsection{Particles}
+\begin{align*}
+  \Phi_{i\text{,particle}} &= \Phi_{i\text{,diff}} + \Phi_{i\text{,advec}} \\
+  \Phi_{i\text{,diff}} &= - Kn\frac{\partial f_{i}}{\partial z} \\
+  \Phi_{i\text{,advec}} &= - w_i n f_{i}
+\end{align*}
+Therefore, we can write Equation \eqref{eq:continuity_simple_approx} as
 
+\begin{equation}
+  \frac{\partial f_{i\in\text{particle}}^j}{\partial t} = - \frac{1}{n^{j}} \frac{\Phi_{i\text{,diff}}^{j+1/2} - \Phi_{i\text{,diff}}^{j-1/2}}{\Delta z^j} - \frac{1}{n^{j}} \frac{\Phi_{i\text{,advec}}^{j+1/2} - \Phi_{i\text{,advec}}^{j-1/2}}{\Delta z^j} + \frac{\sigma_i^j}{n^{j}}
+\end{equation}
+Applying a centered scheme to the diffusive fluxes follows the same procedure as we did with gas diffusion (Section \ref{sec:FV_particles}). To apply a first-order upwind scheme, we first recognize that falling particles means information is traveling from up to down in the model. Therefore, an upwind scheme approximates advective fluxes with a forward difference
+
+\begin{equation}
+  \frac{\Phi_{i\text{,advec}}^{j+1/2} - \Phi_{i\text{,advec}}^{j-1/2}}{\Delta z^j} \approx \frac{\Phi_{i\text{,advec}}^{j+1} - \Phi_{i\text{,advec}}^{j}}{\Delta z^j} = \frac{(-w_i n f_i)^{j+1} - (-w_i n f_i)^{j}}{\Delta z^j}
+\end{equation}
+Applying a centered scheme to diffusion and an upwind scheme to advection, and rearranging, gives the $A$ and $B$ coefficients for Equation \eqref{eq:dfdt_general} for particles:
+
+% \begin{equation} \label{eq:dfdt_particle}
+% \begin{split} 
+%   \frac{\partial f_{i \in \text{particle}}^j}{\partial t} &= (A_{i\text{,particle}}^{j\text{,upper}}+ B_{i\text{,particle}}^{j\text{,upper}}) f_{i}^{j+1} \\
+%   &+ (A_{i\text{,particle}}^{j\text{,center}} + B_{i\text{,particle}}^{j\text{,center}}) f_{i}^{j} \\
+%   &+ (A_{i\text{,particle}}^{j\text{,lower}} + B_{i\text{,particle}}^{j\text{,lower}}) f_{i}^{j-1} \\
+%   &+ \frac{\sigma_i^j}{n^{j}}
+% \end{split}
+% \end{equation}
+% Where,
+
+\begin{equation*}
+  \begin{aligned}
+    A_{i\text{,particle}}^{j\text{,upper}} &= A_{i\text{,particle}}^{j,1} \\
+    A_{i\text{,particle}}^{j\text{,center}} &= - A_{i\text{,particle}}^{j,1} - A_{i\text{,particle}}^{j,2} \\
+    A_{i\text{,particle}}^{j\text{,lower}} &= A_{i\text{,particle}}^{j,2}
+  \end{aligned}
+  \quad\quad\quad
+  \begin{aligned}
+    A_{i\text{,particle}}^{j,1} &= \frac{K^{j+1/2} n^{j+1/2}}{n^j \Delta z^j \Delta z^{j+1/2}} \\
+    A_{i\text{,particle}}^{j,2} &= \frac{K^{j-1/2} n^{j-1/2}}{n^j \Delta z^j \Delta z^{j-1/2}}
+  \end{aligned}
+\end{equation*}
+% and,
+
+\begin{equation*}
+  \begin{aligned}
+    B_{i\text{,particle}}^{j\text{,upper}} &= B_{i\text{,particle}}^{j,1} \\
+    B_{i\text{,particle}}^{j\text{,center}} &= B_{i\text{,particle}}^{j,2} \\
+    B_{i\text{,particle}}^{j\text{,lower}} &= 0
+  \end{aligned}
+  \quad\quad\quad
+  \begin{aligned}
+    B_{i\text{,particle}}^{j,1} &= \frac{w^{j+1}n^{j+1}}{n^j \Delta z^j} \\
+    B_{i\text{,particle}}^{j,2} &= -\frac{ w^{j} }{\Delta z^j}
+  \end{aligned}
+\end{equation*}
+Following the same procedure as we did in Section \ref{sec:FV_gases}, we can write the $A$ and $B$ coefficients for Equation \eqref{eq:dfdt_boundary} for particles at the lower boundary:
+
+% \begin{equation} \label{eq:dfdt_particle_boundary}
+% \begin{aligned}
+%   \frac{\partial f_{i \in \text{particle}}^l}{\partial t} &= (A_{i\text{,particle}}^{l\text{,upper}}+ B_{i\text{,particle}}^{l\text{,upper}}) f_{i}^{l+1} \\
+%   &+ (A_{i\text{,particle}}^{l\text{,center}} + B_{i\text{,particle}}^{l\text{,center}}) f_{i}^{l} \\
+%   &+ \frac{\Phi_i^\text{lower}}{n^l \Delta z^l} \\
+%   &+ \frac{\sigma_i^l}{n^{l}}
+% \end{aligned}
+% \quad\quad\quad
+% \begin{aligned}
+%   \frac{\partial f_{i \in \text{particle}}^m}{\partial t} &= (A_{i\text{,particle}}^{m\text{,center}} + B_{i\text{,particle}}^{m\text{,center}}) f_{i}^{m} \\
+%   &+ (A_{i\text{,particle}}^{m\text{,lower}} + B_{i\text{,particle}}^{m\text{,lower}}) f_{i}^{m-1} \\
+%   &- \frac{\Phi_i^\text{upper}}{n^m \Delta z^m} \\
+%   &+ \frac{\sigma_i^m}{n^{m}}
+% \end{aligned}
+% \end{equation}
+% The $A$ and $B$ coefficients for the lower boundary are
+
+\begin{equation*}
+  \begin{aligned}
+  A_{i\text{,particle}}^{l\text{,upper}} &= A_{i\text{,particle}}^{l,1} \\
+  A_{i\text{,particle}}^{l\text{,center}} &= - A_{i\text{,particle}}^{l,1} \\
+  \end{aligned}
+  \quad\quad
+  \begin{aligned}
+  B_{i\text{,particle}}^{l\text{,upper}} &= B_{i\text{,particle}}^{l,1} \\
+  B_{i\text{,particle}}^{l\text{,center}} &= 0
+  \end{aligned}
+\end{equation*}
+and the upper boundary,
+
+\begin{equation*}
+  \begin{aligned}
+  A_{i\text{,particle}}^{m\text{,center}} &= - A_{i\text{,particle}}^{m,2} \\
+  A_{i\text{,particle}}^{m\text{,lower}} &= A_{i\text{,particle}}^{m,2}
+  \end{aligned}
+  \quad\quad
+  \begin{aligned}
+  B_{i\text{,particle}}^{m\text{,center}} &= B_{i\text{,particle}}^{m,2} \\
+  B_{i\text{,particle}}^{m\text{,lower}} &= 0
+  \end{aligned}
+\end{equation*}
+
+\subsubsection{Summary}
+
+Equations \eqref{eq:dfdt_general} and \eqref{eq:dfdt_boundary} are a system of ordinary differential equations (ODEs) which are a finite volume approximation of our original system of PDEs (Equation \eqref{eq:continuity_simple}). The number of ODEs is the number evolving species multiplied by the number of atmospheric grid-cells. We often use about 100 species and 200 vertical layers resulting in $\sim$20,000 ODEs.
+
+\subsection{Solving the system of ordinary differential equations}
+
+% At this point, 
+
+% Given initial conditions, boundary conditions, and values for various free parameters (e.g. $K$), we can evolve Equations \eqref{eq:dfdt_gas}, \eqref{eq:dfdt_gas_boundary}, \eqref{eq:dfdt_particle} and \eqref{eq:dfdt_particle_boundary} forward in time using a 
 
 
 
@@ -273,57 +450,6 @@ The upper boundary condition is the flux through through the top edge of the hig
 
 % We use the ``method of lines'' approach to turn the Equation \eqref{eq:continuity_simple} system of PDEs into a larger system of ordinary differential equations (ODEs). This process involves replacing spatial derivatives with finite difference approximations.
 
-\begin{table}
-\centering
-\begin{tabularx}{\linewidth}{p{0.15\linewidth} | p{0.55\linewidth} | p{0.3\linewidth}}
-\hline \hline
-Variable & Definition & Units \\
-\hline
-\(f_{i}\) & Mixing ratio of species \(i\) & dimensionless \\
-\(n_{i}\) & Number density of species \(i\) & molecules
-cm\textsuperscript{-3} \\
-\(z\) & Altitude & cm \\
-\(t\) & Time & seconds \\
-\(n\) & Total number density & molecules
-cm\textsuperscript{-3} \\
-\(P_{i}\) & Total chemical production of species \(i\) & molecules
-cm\textsuperscript{-3} s\textsuperscript{-1} \\
-\(L_{i}\) & Total chemical loss of species \(i\) & molecules
-cm\textsuperscript{-3} s\textsuperscript{-1} \\
-\(R_{\text{i, rainout}}\) & Production and loss of species \(i\) from
-rainout & molecules cm\textsuperscript{-3}
-s\textsuperscript{-1} \\
-\(Q_{\text{i, lightning}}\) & Production and loss of species \(i\)
-from lightning & molecules cm\textsuperscript{-3}
-s\textsuperscript{-1} \\
-\(\Phi_{i}\) & Vertical flux of species \(i\) & molecules
-cm\textsuperscript{-2} s\textsuperscript{-1} \\
-\(K\) & Eddy diffusion coefficient & cm\textsuperscript{2}
-s\textsuperscript{-1} \\
-\(D_{i}\) & Molecular diffusion coefficient & cm\textsuperscript{2}
-s\textsuperscript{-1} \\
-\(H_{i}\) & \(= N_{a}\text{kT}\text{/}\mu_{i}g\), The scale heights of
-species \(i\) & cm \\
-\(H_{a}\) & \(= N_{a}\text{kT}\text{/}\overline{\mu}g\), The average
-scale height. & cm \\
-\(N_{a}\) & Avogadro's number & molecules
-mol\textsuperscript{-1} \\
-\(k\) & Boltzmann's constant & erg K\textsuperscript{-1} \\
-\(\mu\) & Molar mass. \(\overline{\mu}\) is mean molar mass of the
-atmosphere, and \(\mu_{i}\) is the molar mass of species \(i\) & g
-mol\textsuperscript{-1} \\
-\(g\) & Gravitational acceleration & cm
-s\textsuperscript{-2} \\
-\(\alpha_{\text{Ti}}\) & Thermal diffusion coefficient of species \(i\).
-We neglect this term (\(\alpha_{\text{Ti}} = 0\)) &
-dimensionless \\
-\(T\) & Temperature & K \\
-$w_i$ & Fall velocity of a particle & cm s$^{-1}$ \\
-$\eta$ & Dynamic viscosity of air. Equation \eqref{eq:dynamic_viscosity}. & dynes s cm$^{-2}$ \\
-\end{tabularx}
-\caption{Variables in \eqref{eq:continuity}}
-\label{tab:variables}
-\end{table}
 
 \appendix
 \section*{Appendix}
@@ -386,6 +512,58 @@ Here, $\lambda$ is the mean free path, which comes from the kinetic theory of ga
 
 %     correct_fac =  1.0_dp + (mean_free_path/partical_radius)* &
 % (1.257e0_dp + 0.4e0_dp*exp((-1.1e0_dp*partical_radius)/(mean_free_path)))
+
+\begin{table}
+  \centering
+  \begin{tabularx}{\linewidth}{p{0.15\linewidth} | p{0.55\linewidth} | p{0.3\linewidth}}
+  \hline \hline
+  Variable & Definition & Units \\
+  \hline
+  \(f_{i}\) & Mixing ratio of species \(i\) & dimensionless \\
+  \(n_{i}\) & Number density of species \(i\) & molecules
+  cm\textsuperscript{-3} \\
+  \(z\) & Altitude & cm \\
+  \(t\) & Time & seconds \\
+  \(n\) & Total number density & molecules
+  cm\textsuperscript{-3} \\
+  \(P_{i}\) & Total chemical production of species \(i\) & molecules
+  cm\textsuperscript{-3} s\textsuperscript{-1} \\
+  \(L_{i}\) & Total chemical loss of species \(i\) & molecules
+  cm\textsuperscript{-3} s\textsuperscript{-1} \\
+  \(R_{\text{i, rainout}}\) & Production and loss of species \(i\) from
+  rainout & molecules cm\textsuperscript{-3}
+  s\textsuperscript{-1} \\
+  \(Q_{\text{i, lightning}}\) & Production and loss of species \(i\)
+  from lightning & molecules cm\textsuperscript{-3}
+  s\textsuperscript{-1} \\
+  \(\Phi_{i}\) & Vertical flux of species \(i\) & molecules
+  cm\textsuperscript{-2} s\textsuperscript{-1} \\
+  \(K\) & Eddy diffusion coefficient & cm\textsuperscript{2}
+  s\textsuperscript{-1} \\
+  \(D_{i}\) & Molecular diffusion coefficient & cm\textsuperscript{2}
+  s\textsuperscript{-1} \\
+  \(H_{i}\) & \(= N_{a}\text{kT}\text{/}\mu_{i}g\), The scale heights of
+  species \(i\) & cm \\
+  \(H_{a}\) & \(= N_{a}\text{kT}\text{/}\overline{\mu}g\), The average
+  scale height. & cm \\
+  \(N_{a}\) & Avogadro's number & molecules
+  mol\textsuperscript{-1} \\
+  \(k\) & Boltzmann's constant & erg K\textsuperscript{-1} \\
+  \(\mu\) & Molar mass. \(\overline{\mu}\) is mean molar mass of the
+  atmosphere, and \(\mu_{i}\) is the molar mass of species \(i\) & g
+  mol\textsuperscript{-1} \\
+  \(g\) & Gravitational acceleration & cm
+  s\textsuperscript{-2} \\
+  \(\alpha_{\text{Ti}}\) & Thermal diffusion coefficient of species \(i\).
+  We neglect this term (\(\alpha_{\text{Ti}} = 0\)) &
+  dimensionless \\
+  \(T\) & Temperature & K \\
+  $w_i$ & Fall velocity of a particle & cm s$^{-1}$ \\
+  $\eta$ & Dynamic viscosity of air. Equation \eqref{eq:dynamic_viscosity}. & dynes s cm$^{-2}$ \\
+  \end{tabularx}
+  \caption{Variables in \eqref{eq:continuity}}
+  \label{tab:variables}
+  \end{table}
 
 \bibliographystyle{plain}
 \bibliography{bib}
