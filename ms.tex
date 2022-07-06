@@ -24,30 +24,30 @@ Below, we describe the equations governing our 1-dimensional photochemical model
 \subsection{The Photochemical Equation} \label{sec:photochem_eqn}
 % Our goal is to describe how the concentration of molecules and particles in the atmosphere changes over time and space. This goal is achieved by first writing down an equation
 
-We begin our derivation of the equations governing photochemistry with a statement of the the conservation of molecules. Such statements of conservation are often called \emph{continuity equations}.
+We begin our derivation of the governing photochemical equations with a statement of the the conservation of molecules. Such statements of conservation are often called \emph{continuity equations}.
 
 \begin{equation} \label{eq:continuity0}
   \frac{\partial n_{i}}{\partial t} + \bm{\nabla} \cdot \bm{\Phi_{i}} = \sigma_i
 \end{equation}
-Here, $n_i$ is the number density of molecule $i$ in molecules cm$^{-3}$, $t$ is time in seconds, $\bm{\nabla}$ is the gradient operator ($\bm{\nabla} \equiv [\frac{\partial}{\partial x}, \frac{\partial}{\partial y}, \frac{\partial}{\partial z}]$), $\bm{\Phi_{i}}$ is a vector of the flux of $n_i$ in molecules cm$^{-2}$ s$^{-1}$ ($\bm{\Phi_{i}} = [\Phi_{i,x},\Phi_{i,y},\Phi_{i,z}]$), and $\sigma_i$ is the source or sink of molecule $i$ in molecules cm$^{-3}$ s$^{-1}$. In words, Equation \eqref{eq:continuity0} states that a molecule's concentration changes over time at a point in space because of the molecules entering or leaving the space (i.e. $\bm{\nabla} \cdot \bm{\Phi_{i}}$), and the production or destruction of molecules (i.e. $\sigma_i$). 
+Here, $n_i$ is the number density of molecule $i$ in molecules cm$^{-3}$, $t$ is time in seconds, $\bm{\nabla}$ is the gradient operator ($\bm{\nabla} \equiv [\frac{\partial}{\partial x}, \frac{\partial}{\partial y}, \frac{\partial}{\partial z}]$), $\bm{\Phi_{i}}$ is a vector of the flux of $n_i$ in molecules cm$^{-2}$ s$^{-1}$ ($\bm{\Phi_{i}} = [\Phi_{i,x},\Phi_{i,y},\Phi_{i,z}]$), and $\sigma_i$ is the source or sink of molecule $i$ in molecules cm$^{-3}$ s$^{-1}$. Equation \eqref{eq:continuity0} states that a molecule's concentration changes over time at a point in space because of the molecules entering or leaving the space (i.e. $\bm{\nabla} \cdot \bm{\Phi_{i}}$), and the production or destruction of molecules (i.e. $\sigma_i$). 
 
 A one-dimensional atmospheric model assumes that species concentrations only changes in the vertical $z$ direction, and is homogeneous in the horizontal directions ($n_i(x,y,z,t) = n_i(z,t)$). Therefore,
 
 \begin{equation} \label{eq:1D_flux}
   \bm{\nabla} \cdot \bm{\Phi_{i}} = \frac{\partial \Phi_{i,z}}{\partial z}
 \end{equation}
-From here, onward, we will drop the $z$ subscript to reduce clutter ($\Phi_{i,z} = \Phi_{i}$). The flux of gases ($\Phi_{i}^\text{gas}$) is determined by eddy and molecular diffusion, and the flux of particles ($\Phi_{i}^\text{particle}$) is given by eddy diffusion and the rate particles fall through the atmosphere.
+From here, onward, we will drop the $z$ subscript to reduce clutter ($\Phi_{i,z} = \Phi_{i}$). The flux of gases ($\Phi_{i\text{,gas}}$) is determined by eddy and molecular diffusion, and the flux of particles ($\Phi_{i\text{,particle}}$) is given by eddy diffusion and the rate particles fall through the atmosphere.
 
 \begin{align}
-  \Phi_{i}^\text{gas} &= \Phi_{i}^\mathrm{eddy} + \Phi_{i}^\mathrm{molecular} \label{eq:phi_gas} \\
-  \Phi_{i}^\text{particle} &= \Phi_{i}^\mathrm{eddy} + \Phi_{i}^\mathrm{fall} \label{eq:phi_particle}
+  \Phi_{i\text{,gas}} &= \Phi_{i\text{,eddy}} + \Phi_{i\text{,molecular}} \label{eq:phi_gas} \\
+  \Phi_{i\text{,particle}} &= \Phi_{i\text{,eddy}} + \Phi_{i\text{,fall}} \label{eq:phi_particle}
 \end{align}
-Here, $\Phi_{i}^\mathrm{eddy}$, $\Phi_{i}^\mathrm{molecular}$ and $\Phi_{i}^\mathrm{fall}$ are approximated with
+Here, $\Phi_{i\text{,eddy}}$, $\Phi_{i\text{,molecular}}$ and $\Phi_{i\text{,fall}}$ are approximated by
 
 \begin{align}
-  \Phi_{i}^\mathrm{eddy} &= - Kn\frac{\partial}{\partial z}\left( \frac{n_{i}}{n} \right) \label{eq:phi_eddy}\\ 
-  \Phi_i^\text{molecular} &= -n_i D_{i} \left( \frac{n}{n_i} \frac{\partial}{\partial z} \left(\frac{n_i}{n}\right) - \frac{1}{H_a} + \frac{1}{H_i} + \frac{\alpha_{Ti}}{T} \frac{\partial T}{\partial z} \right) \label{eq:phi_molecular} \\
-  \Phi_{i}^\mathrm{fall} &= - w_i n_i \label{eq:phi_fall}
+  \Phi_{i\text{,eddy}} &= - Kn\frac{\partial}{\partial z}\left( \frac{n_{i}}{n} \right) \label{eq:phi_eddy}\\ 
+  \Phi_{i\text{,molecular}} &= -n_i D_{i} \left( \frac{n}{n_i} \frac{\partial}{\partial z} \left(\frac{n_i}{n}\right) - \frac{1}{H_a} + \frac{1}{H_i} + \frac{\alpha_{Ti}}{T} \frac{\partial T}{\partial z} \right) \label{eq:phi_molecular} \\
+  \Phi_{i\text{,fall}} &= - w_i n_i \label{eq:phi_fall}
 \end{align}
 We derive Equation \eqref{eq:phi_molecular} in Appendix \ref{sec:molecular_diffusion} starting with the general binary diffusion equation. Equation \eqref{eq:phi_molecular} assumes the atmosphere is an ideal gas at hydrostatic equilibrium, and that the diffusing gas is a minor atmospheric constituent. In Equation \eqref{eq:phi_fall}, $w_i$ is the fall velocity of a particle, which can be estimated with Stokes' law (Appendix \ref{sec:fall_velocity}).
 
@@ -64,13 +64,13 @@ Here, $P_{i}$ is chemical production and $L_i$ is chemical loss. Substituting Eq
 
 The 1-D continuity equation (Equation \eqref{eq:continuity}) and corresponding fluxes (Equations \eqref{eq:phi_gas} - \eqref{eq:phi_fall}) are a system of partial differential equations (PDEs) describing how the number density ($n_{i}$) of each chemical species $i$ changes of altitude and time. This system assumes the atmosphere is one-dimensional, and uses an approximation of molecular diffusion (Equation \eqref{eq:phi_molecular}).
 
-\subsubsection{The assumption of time-constant total number density} \label{sec:assume_const_num_den}
+\subsection{The assumption of time-constant total number density} \label{sec:assume_const_num_den}
 
-In our photochemical model, we solve a simplified version of Equation \eqref{eq:continuity} which assumes that the total number density does not change over time ($\partial n / \partial t \approx 0$). This approach is perfectly valid for steady-state photochemical calculations, which are what many researchers are interested in. This assumption is also reasonable for atmospheric transitions which maintain approximately constant surface pressure and atmospheric temperature. However, $\partial n / \partial t \neq 0$ when an evolution involves large changes in atmospheric mass and temperature such as, for example, the evolution of the atmosphere during a runaway greenhouse.
+In our photochemical model, we solve a simplified version of Equation \eqref{eq:continuity} which assumes that the total number density does not change over time ($\partial n / \partial t \approx 0$). This approach is perfectly valid for steady-state photochemical calculations, and is also reasonable for atmospheric transitions which maintain approximately constant surface pressure and atmospheric temperature. However, $\partial n / \partial t \neq 0$ when an evolution involves large changes in atmospheric mass and temperature such as, for example, the evolution of the atmosphere during a runaway greenhouse.
 
 In our model, we assume a time-constant temperature prescribed through the whole atmospheric column. The surface pressure is also a free parameter, and pressures above the surface are computed using the hydrostatic equation. The time-constant total number density throughout the atmosphere is determined by the ideal gas law ($n = \frac{P}{kT}$).
 
-In order to guarantee that all mixing ratios in the atmosphere sum to 1 (or equivalently $\sum_i n_i = n$), we prescribe a background filler gas with a mixing ratio $f_\mathrm{background} = 1 - \sum_i f_i$. N$_2$, CO$_2$ or H$_2$ are common choices for the background gas, depending on the planet in consideration. By definition, the background gas is not conserved.
+In order to guarantee that all mixing ratios in the atmosphere sum to 1 (or equivalently $\sum_i n_i = n$), we prescribe a background filler gas with a mixing ratio $f_\mathrm{background} = 1 - \sum_i f_i$. N$_2$, CO$_2$ or H$_2$ are common choices for the background gas, depending on the atmosphere under investigation. By definition, the background gas is not conserved.
 
 % The constant number density assumption, which all existing photochemical models adopt, is not necessary. In Appendix XXX we describe how one would solve the full continuity equation (Equation \eqref{eq:continuity}). 
 
@@ -89,15 +89,15 @@ Applying the assumption of constant number density ($\partial n / \partial t = 0
 \begin{equation} \label{eq:mix_density_der1}
   \frac{\partial n_i}{\partial t} = n \frac{\partial f_i}{\partial t}
 \end{equation}
-We can substitute Equation \eqref{eq:mix_density_der1} into \eqref{eq:continuity}, and rearrange to produce a simplified version of the continuity equation,
+We can substitute Equation \eqref{eq:mix_density_der1} into \eqref{eq:continuity} and rearrange to produce a simplified version of the continuity equation,
 
 \begin{equation} \label{eq:continuity_simple}
-  \boxed{\frac{\partial f_{i}}{\partial t} = - \frac{1}{n}\frac{\partial}{\partial z}\Phi_{i} + \frac{P_{i}}{n} - \frac{L_{i}}{n} - \frac{R_{i\text{, rainout}}}{n} + \frac{Q_{i\text{, lightning}}}{n} + \frac{C_{i\text{, cond}}}{n}}
+  \frac{\partial f_{i}}{\partial t} = - \frac{1}{n}\frac{\partial}{\partial z}\Phi_{i} + \frac{P_{i}}{n} - \frac{L_{i}}{n} - \frac{R_{i\text{, rainout}}}{n} + \frac{Q_{i\text{, lightning}}}{n} + \frac{C_{i\text{, cond}}}{n}
 \end{equation}
-We can re-write $\Phi_{i}^\text{gas}$ and $\Phi_{i}^\text{particle}$ (Equation \eqref{eq:phi_gas} and Equation \eqref{eq:phi_particle}) in terms of mixing ratios instead of number densities using Equation \eqref{eq:mix_density}. After substitution, and rearrangement we are left with
+We can re-write $\Phi_{i\text{,gas}}$ and $\Phi_{i\text{,particle}}$ (Equation \eqref{eq:phi_gas} and Equation \eqref{eq:phi_particle}) in terms of mixing ratios instead of number densities using Equation \eqref{eq:mix_density}. After substitution, and rearrangement we are left with
 
 \begin{equation} \label{eq:phi_gas_1}
-  \boxed{\Phi_{i}^\text{gas} = - \left( K + D_{i} \right)n\frac{\partial f_{i}}{\partial z} - \gamma_{i}nf_{i}}
+  \Phi_{i\text{,gas}} = - \left( K + D_{i} \right)n\frac{\partial f_{i}}{\partial z} - \gamma_{i}nf_{i}
 \end{equation}
 Where $\gamma_{i}$ is given by
 
@@ -107,7 +107,7 @@ Where $\gamma_{i}$ is given by
 The flux of particles in terms of mixing ratios is
 
 \begin{equation} \label{eq:phi_particle_1}
-  \boxed{\Phi_{i}^\text{particle} = - Kn\frac{\partial f_{i}}{\partial z} - w_i n f_{i}}
+  \Phi_{i\text{,particle}} = - Kn\frac{\partial f_{i}}{\partial z} - w_i n f_{i}
 \end{equation}
 
 Equations \eqref{eq:continuity_simple}, \eqref{eq:phi_gas_1} and \eqref{eq:phi_particle_1} are a new, simplified version of the continuity equation, describing how the volume mixing ratio of gases and particles evolve over time and altitude. These equations have the following assumptions
@@ -125,40 +125,141 @@ Equations \eqref{eq:continuity_simple}, \eqref{eq:phi_gas_1} and \eqref{eq:phi_p
 
 % \subsection{The consequence of assuming time-constant number density}
 
-The assumption of constant number density made above has at least one very important consequence: certain boundary conditions, diffusion coefficients, and source terms (e.g. chemistry) can violate the constant number density assumption by an amount that causes Equation \eqref{eq:continuity_simple} to yield nonphysical mixing ratios. 
+The assumption of constant number density made above has at least one very important consequence: certain boundary conditions, diffusion coefficients, and source terms (e.g. chemistry) can violate the constant number density assumption by an amount that causes Equation \eqref{eq:continuity_simple} to yield nonphysical mixing ratios.
 
-One example is an atmosphere with an extremely large surface flux of a gas into a thin atmosphere. In this case, in reality, the atmosphere would grow in mass and become thicker. But, Equation \eqref{eq:continuity_simple} does not allow the atmosphere to become thicker. Instead, the mixing ratio of the gas being fluxed into the atmosphere might increase to a value larger than 1, which does not make sense.
+One example is an atmosphere with an extremely large surface flux of a gas into a thin atmosphere. In this case, in reality, the atmosphere would grow in mass and become thicker. But, Equation \eqref{eq:continuity_simple} does not allow the atmosphere to become thicker. Instead, the mixing ratio of the gas being fluxed into the atmosphere might increase to a value larger than 1, which is not a sensible value for a mixing ratio.
 
-Chemical reactions can also cause nonphysical mixing ratios when using Equation \eqref{eq:continuity_simple}. Suppose an atmosphere contains 0.6 mixing ratio H$_2$ with and N$_2$ background. Also, suppose that the atmosphere is very hot so that the disproportionation reaction, $\mathrm{H_2} \rightarrow \mathrm{H} + \mathrm{H}$, proceeds rapidly and to near completion. Assuming Equation \eqref{eq:continuity_simple}, the result would be a H mixing ratio of 1.2, which again, does not make sense.
-
-The lack of a physically valid evolution of Equation \eqref{eq:continuity_simple} can be valuable information.
+Chemical reactions can also cause nonphysical mixing ratios when using Equation \eqref{eq:continuity_simple}. Suppose an atmosphere contains 0.6 mixing ratio H$_2$ with and N$_2$ background. Also, suppose that the atmosphere is very hot so that the disproportionation reaction, $\mathrm{H_2} \rightarrow \mathrm{H} + \mathrm{H}$, proceeds rapidly and to near completion. Assuming Equation \eqref{eq:continuity_simple}, the resulting evolution would produce a H mixing ratio of 1.2, which again, is an invalid mixing ratio.
 
 \subsection{Finite volume discretization of the model equations} \label{sec:finite_volume}
 
-We use the finite volume method to discretize the spatial derivatives in Equation \eqref{eq:continuity_simple} allowing an approximate numerical solution. The finite volume method divides the spatial domain ($z$) into grid cells, or finite volumes, in order to approximate the cell-averaged value of the mixing ratio of a species, $f_i$. These approximations to the cell-averaged value of $f_i$ are modified over time by considering the flux of molecules through the edges of the cells, and the sources and sinks of molecules within the cell. The main advantage of this approach is that the approximation conserves molecules, which is not always the case for other PDE discretization methods. Molecule conservation is valuable for understanding whether a model run has reached steady-state, or interrogating the redox fluxes into and out of an atmosphere.
+We use the finite volume method to discretize Equation \eqref{eq:continuity_simple} allowing an approximate numerical solution. The finite volume method divides the spatial domain ($z$) into grid cells, or finite volumes, in order to approximate the cell-averaged value of the mixing ratio of a species, $f_i$. Approximations to the cell-averaged value of $f_i$ are modified over time by considering the flux of molecules through the edges of the cells, and the sources and sinks of molecules within the cell. The main advantage of this approach is that the approximation conserves molecules, which is not always the case for other PDE discretization methods. Molecule conservation is valuable for understanding whether a model run has reached steady-state, or interrogating the redox fluxes into and out of an atmosphere. Below, we decribe the application of the finite-volume method to Equation \eqref{eq:continuity_simple}. For an in-depth understanding of the finite-volume method, see Leveque (2002) \cite{Leveque_2002}.
 
-Below, we decribe the application of the finite-volume method to Equation \eqref{eq:continuity_simple}. For an in-depth understanding of the finite-volume method, see Leveque (2002) \cite{Leveque_2002}. We begin by re-arranging Equation \eqref{eq:continuity_simple} to produce the following
+Consider an atmosphere that has been vertically divided into $m$ grid-cell (i.e. finite volumes) of thickness $\Delta z^j$. The superscript $j$ refers to a grid cell ($j$ does not refer to a power), where $j = 1$ is the lowest altitude grid-cell $j = m$ highest grid-cell. $z^j$ is the altitude at the center of grid-cell $j$, such that the upper and lower edges of the cell are given by $z^{j+1/2} = z^j + \frac{\Delta z^j}{2}$ and $z^{j-1/2} = z^j - \frac{\Delta z^j}{2}$, respectfully.
+
+Consider a single grid cell between altitudes $z = z^{j-1/2}$ and $z = z^{j+1/2}$. First, we can re-arrange Equation \eqref{eq:continuity_simple} to produce the following
 
 \begin{equation} \label{eq:continuity_simple1}
   \frac{\partial n_i}{\partial t} = - \frac{\partial \Phi_{i}}{\partial z} + \sigma_i
 \end{equation}
-Let's consider a single atmospheric layer between altitudes $z = z_1$ and $z = z_2$. Integrating Equation \eqref{eq:continuity_simple1} from the bottom to the top of this layer gives
+Integrating Equation \eqref{eq:continuity_simple1} from the bottom to the top of the grid cell gives
 
 \begin{equation} \label{eq:continuity_simple_conservative}
-  \frac{\partial}{\partial t} \int_{z_1}^{z_2} n_i dz = - (\Phi_{i}(z_1) - \Phi_{i}(z_1)) + \int_{z_1}^{z_2} \sigma_i dz
+  \frac{\partial}{\partial t} \int_{z^{j-1/2}}^{z^{j+1/2}} n_i dz = - (\Phi_{i}(z^{j+1/2}) - \Phi_{i}(z^{j-1/2})) + \int_{z^{j-1/2}}^{z^{j+1/2}} \sigma_i dz
 \end{equation}
-The average value of $n_i$ and $\sigma_i$ between $z_1$ and $z_2$ are given by the integrals
+The average value of $n_i$ and $\sigma_i$ between $z^{j-1/2}$ and $z^{j+1/2}$ are given by the integrals
 
 \begin{align}
-  \overline{n_i} = \frac{1}{\Delta z} \int_{z_1}^{z_2} n_i dz \\
-  \overline{\sigma_i} = \frac{1}{\Delta z} \int_{z_1}^{z_2} \sigma_i dz
+  \overline{n_i}^j = \frac{1}{\Delta z^j} \int_{z^{j-1/2}}^{z^{j+1/2}} n_i dz \\
+  \overline{\sigma_i}^j = \frac{1}{\Delta z^j} \int_{z^{j-1/2}}^{z^{j+1/2}} \sigma_i dz
 \end{align}
-Here, $\Delta z = z_2 - z_1$. Substituting the above expressions into Equation \eqref{eq:continuity_simple_conservative} yields
+Substituting the above expressions into Equation \eqref{eq:continuity_simple_conservative} yields
 
 \begin{equation} \label{eq:continuity_simple_conservative1}
-  \frac{\partial}{\partial t} \overline{n_i}(t) = - \frac{\Phi_{i}(z_1,t) - \Phi_{i}(z_2,t)}{\Delta z} + \overline{\sigma_i}(t)
+  \frac{\partial}{\partial t} \overline{n_i}^j(t) = - \frac{\Phi_{i}(z^{j+1/2},t) - \Phi_{i}(z^{j-1/2},t)}{\Delta z^j} + \overline{\sigma_i}^j(t)
 \end{equation}
-Equation \eqref{eq:continuity_simple_conservative1} states that the average number density of species $i$ in an atmospheric layer ($\overline{n_i}$) changes over time because of the fluxes at the edges of the layer ($\Phi_{i}(z_1)$ and $\Phi_{i}(z_2)$), and the average production or loss of the species in the layer ($\overline{\sigma_i}$). This formula is exact, but now we will begin introducing approximations. First, we will approximate all quantities as constant over small segments of time. 
+Equation \eqref{eq:continuity_simple_conservative1} states that the average number density of species $i$ in the $j$ atmospheric layer ($\overline{n_i}^j$) changes over time because of the fluxes at the edges of the layer (e.g. $\Phi_{i}(z^{j+1/2},t)$), and the average production or loss of the species in the layer ($\overline{\sigma_i}^j$). The above formula is exact for $\overline{n_i}^j(t)$. However, we now make the following assumptions:
+
+\begin{enumerate}
+  \item $\overline{n_i}^j(t)$, $\overline{\sigma_i}^j(t)$, $\Phi_{i}(z^{j+1/2},t)$, $\Phi_{i}(z^{j-1/2},t)$  are constant over small segments of time, $\Delta t$.
+  \item $\overline{n_i}^j \approx \overline{f_i}^j \overline{n}^j$
+  \item We can approximate $\Phi_{i}(z^{j+1/2},t)$, $\Phi_{i}(z^{j-1/2},t)$, and $\overline{\sigma_i}^j(t)$ in terms of cell-averaged quantities, such as $\overline{f_i}^j$ and $\overline{f_i}^{j+1}$
+\end{enumerate}
+We denote the approximate quantities in the following way
+
+\begin{align}
+  f_i^{j} &\approx \overline{f_i}^{j} \nonumber \\
+  n^{j} &\approx \overline{n}^{j} \nonumber \\
+  \sigma_i^j &\approx \overline{\sigma_i}^j(t) \nonumber \\
+  \Phi_{i}^{j+1/2} &\approx \Phi_{i}(z^{j+1/2},t) \nonumber \\
+  \Phi_{i}^{j-1/2} &\approx \Phi_{i}(z^{j-1/2},t) \nonumber
+\end{align}
+Re-writing Equation \eqref{eq:continuity_simple_conservative1}, substituting in the approximate quantities gives
+
+\begin{equation} \label{eq:continuity_simple_approx}
+  \frac{\partial f_i^j}{\partial t} = - \frac{1}{n^{j}} \frac{\Phi_{i}^{j+1/2} - \Phi_{i}^{j-1/2}}{\Delta z^j} + \frac{\sigma_i^j}{n^{j}}
+\end{equation}
+
+We now must derive expressions for the gas and particle fluxes at grid-cell edges that are accurate and stable for our problem. For fluxes that are diffusion-dominated, a centered approximation is sufficient. However, for an advection-dominated flux, we can use a first-order upwind scheme, because a centered approximation is not stable for advection (Chapter 4 in \cite{Leveque_2002}).
+
+\subsubsection{Gases}
+
+In the equation for gas flux (Equation \eqref{eq:phi_gas_1}), the first term is diffusive and the second term is advective. For most all plausible diffusion coefficients and advection velocities the diffusion term dominates, therefore, it is suitable to use a centered finite volume scheme for $\Phi_{i\text{,gas}}^{j+1/2}$ and $\Phi_{i\text{,gas}}^{j-1/2}$ (Equation 4.10 in \cite{Leveque_2002}):
+
+\begin{equation}
+  \Phi_{i\text{,gas}}^{j+1/2} = - ( K + D_{i})^{j+1/2} n^{j+1/2} \left( \frac{\partial f_{i}}{\partial z} \right)^{j+1/2} - (\gamma_{i} n)^{j+1/2} f_{i}^{j+1/2}
+\end{equation}
+A centered finite volume approximation gives 
+
+$$\left( \frac{\partial f_{i}}{\partial z} \right)^{j+1/2} \approx \frac{f_i^{j+1} - f_i^{j}}{\Delta z^{j+1/2}}$$
+Where $\Delta z^{j+1/2} = \frac{1}{2}\Delta z^j + \frac{1}{2} \Delta z^{j+1}$. Also, $f_{i}^{j+1/2}$ can be estimated by linearly interpolating between the two adjacent cells.
+
+$$f_{i}^{j+1/2} \approx \frac{\Delta z^{j}f_i^{j+1} + \Delta z^{j+1} f_i^{j}}{\Delta z^{j+1}+\Delta z^{j}}$$
+Therefore,
+
+\begin{equation} \label{eq:phi_gas_p}
+  \Phi_{i\text{,gas}}^{j+1/2} = - ( K + D_{i})^{j+1/2} n^{j+1/2} \frac{f_i^{j+1} - f_i^{j}}{\Delta z^{j+1/2}} - (\gamma_{i} n)^{j+1/2} \frac{\Delta z^{j}f_i^{j+1} + \Delta z^{j+1} f_i^{j}}{\Delta z^{j+1}+\Delta z^{j}}
+\end{equation}
+Using an similar procedure, $\Phi_{i\text{,gas}}^{j-1/2}$ is given by
+
+\begin{equation} \label{eq:phi_gas_m}
+  \Phi_{i\text{,gas}}^{j-1/2} = - ( K + D_{i})^{j-1/2} n^{j-1/2} \frac{f_i^{j} - f_i^{j-1}}{\Delta z^{j-1/2}} - (\gamma_{i} n)^{j-1/2} \frac{\Delta z^{j-1}f_i^{j} + \Delta z^{j} f_i^{j-1}}{\Delta z^{j}+\Delta z^{j-1}}
+\end{equation}
+Substituting Equations \eqref{eq:phi_gas_p} and \eqref{eq:phi_gas_m} into Equation \eqref{eq:continuity_simple_approx} and re-arranging gives
+
+\begin{equation}
+\begin{split} 
+  \frac{\partial f_{i \in \text{gas}}^j}{\partial t} &= (A_{i\text{,gas}}^{j\text{,upper}}+ B_{i\text{,gas}}^{j\text{,upper}}) f_{i}^{j+1} \\
+  &+ (A_{i\text{,gas}}^{j\text{,center}} + B_{i\text{,gas}}^{j\text{,center}}) f_{i}^{j} \\
+  &+ (A_{i\text{,gas}}^{j\text{,lower}} + B_{i\text{,gas}}^{j\text{,lower}}) f_{i}^{j-1} \\
+  &+ \frac{\sigma_i^j}{n^{j}}
+\end{split}
+\end{equation}
+Where, the $A$ coefficients (e.g. $A_{i\text{,gas}}^{j\text{,upper}}$) correspond to the diffusive approximations to the cell-edge fluxes:
+
+\begin{align}
+  A_{i\text{,gas}}^{j\text{,upper}} &= A_{i\text{,gas}}^{j,1} \nonumber \\
+  A_{i\text{,gas}}^{j\text{,center}} &= - A_{i\text{,gas}}^{j,1} - A_{i\text{,gas}}^{j,2}  \nonumber \\
+  A_{i\text{,gas}}^{j\text{,lower}} &= A_{i\text{,gas}}^{j,2} \nonumber
+\end{align}
+Where,
+
+\begin{align}
+  A_{i\text{,gas}}^{j,1} &= \frac{(K + D_{i})^{j+1/2} n^{j+1/2}}{n^j \Delta z^j \Delta z^{j+1/2}} \nonumber \\
+  A_{i\text{,gas}}^{j,2} &= \frac{(K + D_{i})^{j-1/2} n^{j-1/2}}{n^j \Delta z^j \Delta z^{j-1/2}} \nonumber
+\end{align}
+Also, the $B$ coefficients (e.g. $B_{i\text{,gas}}^{j\text{,upper}}$) correspond to the advection approximations to the cell-edge fluxes:
+
+\begin{align}
+  B_{i\text{,gas}}^{j\text{,upper}} &= B_{i\text{,gas}}^{j,1} \nonumber \\
+  B_{i\text{,gas}}^{j\text{,center}} &= B_{i\text{,gas}}^{j,2} + B_{i\text{,gas}}^{j,3}  \nonumber \\
+  B_{i\text{,gas}}^{j\text{,lower}} &= B_{i\text{,gas}}^{j,4} \nonumber
+\end{align}
+Where,
+
+\begin{align}
+  B_{i\text{,gas}}^{j,1} &= \frac{(\gamma_{i} n)^{j+1/2}}{n^j \Delta z^j} \frac{\Delta z^{j}}{\Delta z^{j+1}+\Delta z^{j}} \nonumber \\
+  B_{i\text{,gas}}^{j,2} &= \frac{(\gamma_{i} n)^{j+1/2}}{n^j \Delta z^j} \frac{\Delta z^{j+1}}{\Delta z^{j+1}+\Delta z^{j}} \nonumber \\
+  B_{i\text{,gas}}^{j,3} &= - \frac{(\gamma_{i} n)^{j-1/2}}{n^j \Delta z^j} \frac{\Delta z^{j-1}}{\Delta z^{j}+\Delta z^{j-1}} \nonumber \\
+  B_{i\text{,gas}}^{j,4} &= - \frac{(\gamma_{i} n)^{j-1/2}}{n^j \Delta z^j} \frac{\Delta z^{j}}{\Delta z^{j}+\Delta z^{j-1}} \nonumber 
+\end{align}
+
+The upper boundary condition is the flux through through the top edge of the highest-altitude cell, $\Phi_{i}^{m+1/2} = \Phi_{i}^\text{upper}$. Similarly, the lower boundary condition is the flux through the lower edge of the lowest-altitude cell, $\Phi_{i}^{1/2} = \Phi_{i}^\text{lower}$. It follows from Equation \eqref{eq:continuity_simple_approx} that
+
+\begin{align}
+  \frac{\partial f_i^m}{\partial t} &= - \frac{1}{n^{m}} \frac{\Phi_{i}^\text{upper} - \Phi_{i}^{m-1/2}}{\Delta z^m} + \frac{\sigma_i^m}{n^{m}} \\
+  \frac{\partial f_i^1}{\partial t} &= - \frac{1}{n^{1}} \frac{\Phi_{i}^\text{1/2} - \Phi_{i}^\text{lower}}{\Delta z^1} + \frac{\sigma_i^1}{n^{1}}
+\end{align}
+
+\subsubsection{Particles}
+
+
+
+
+
+% The first approximation we will make is that all quantities are constant over small segments of time. We denote these approximate quanties without
+
+% First, we will approximate all quantities as constant over small segments of time. 
 
 
 % We divide the atmosphere vertically into $m$ grid cell of thickness $\Delta z^j$. The superscript $j$ refers to a grid cell, where $j = 1$ is the lowest in altitude grid-cell $j = m$ highest grid-cell. $f_i^j$ is the cell-averaged value
@@ -251,7 +352,7 @@ We make the further approximation that gas $i$ is small abundance compared to ga
   \Phi_i^\text{molecular} = n_i v_i = -n_i D_{i} \left( \frac{n}{n_i} \frac{\partial}{\partial z} \left(\frac{n_i}{n}\right) - \frac{1}{H_a} + \frac{1}{H_i} + \frac{\alpha_{Ti}}{T} \frac{\partial T}{\partial z} \right)
 \end{equation}
 
-Also, we take the molecular diffusion coefficient to be given by the formula (Equation 15.29 in \cite{Banks_2013})
+Also, we estimate the molecular diffusion coefficient with the formula (Equation 15.29 in \cite{Banks_2013})
 
 \begin{equation} \label{eq:molec_diffusion_coeff}
   D_i = 
@@ -261,7 +362,7 @@ Note, this equation is also in Catling and Kasting (2017) \cite{Catling_2017} (E
 
 \section{Particle Fall Velocity} \label{sec:fall_velocity}
 
-The particle fall velocity ($w_i$) is given by stokes law, with a slip correction factor ($C_{c,i}$) following Equation 9.42 in \cite{Seinfeld_2006}.
+The particle fall velocity ($w_i$) is given by stokes law with a slip correction factor ($C_{c,i}$) (Equation 9.42 in \cite{Seinfeld_2006}).
 
 \begin{equation} \label{eq:stokes_law}
   w_i = \frac{2}{9} \frac{(\rho_i - \rho)r_i^2}{\eta} C_{c,i}
