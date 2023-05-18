@@ -167,13 +167,18 @@ Equation \eqref{eq:continuity_simple_conservative1} states that the average numb
 \end{enumerate}
 We denote the approximate quantities in the following way
 
-\begin{align}
-  f_i^{j} &\approx \overline{f_i}^{j} \nonumber \\
-  n^{j} &\approx \overline{n}^{j} \nonumber \\
-  \sigma_i^j &\approx \overline{\sigma_i}^j(t) \nonumber \\
-  \Phi_{i}^{j+1/2} &\approx \Phi_{i}(z^{j+1/2},t) \nonumber \\
-  \Phi_{i}^{j-1/2} &\approx \Phi_{i}(z^{j-1/2},t) \nonumber
-\end{align}
+\begin{equation*}
+  \begin{aligned}
+    f_i^{j} &\approx \overline{f_i}^{j} \\
+    n^{j} &\approx \overline{n}^{j} \\
+    \sigma_i^j &\approx \overline{\sigma_i}^j(t)
+  \end{aligned}
+  \quad\quad\quad
+  \begin{aligned}
+    \Phi_{i}^{j+1/2} &\approx \Phi_{i}(z^{j+1/2},t) \\
+    \Phi_{i}^{j-1/2} &\approx \Phi_{i}(z^{j-1/2},t)
+  \end{aligned}
+\end{equation*}
 Re-writing Equation \eqref{eq:continuity_simple_conservative1}, substituting in the approximate quantities gives
 
 \begin{equation} \label{eq:continuity_simple_approx}
@@ -186,7 +191,7 @@ We now must derive expressions for the gas and particle fluxes at grid-cell edge
 
 \subsubsection{Gases} \label{sec:FV_gases}
 
-In the equation for gas flux (Equation \eqref{eq:phi_gas_1}), the first term is diffusive and the second term is advective. For most all plausible diffusion coefficients and advection velocities the diffusion term dominates, therefore, it is suitable to use a centered finite volume scheme for $\Phi_{i\text{,gas}}^{j+1/2}$ and $\Phi_{i\text{,gas}}^{j-1/2}$ (Equation 4.10 in \cite{Leveque_2002}):
+In the equation for gas flux (Equation \eqref{eq:phi_gas_1}), the first term is diffusive and the second term is advective. For most all plausible diffusion coefficients and advection velocities the diffusion term dominates, therefore, it is suitable to use a centered finite volume scheme (Equation 4.10 in \cite{Leveque_2002}):
 
 \begin{equation}
   \Phi_{i\text{,gas}}^{j+1/2} = - ( K + D_{i})^{j+1/2} n^{j+1/2} \left( \frac{\partial f_{i}}{\partial z} \right)^{j+1/2} - (\gamma_{i} n)^{j+1/2} f_{i}^{j+1/2}
@@ -334,7 +339,7 @@ Therefore, we can write Equation \eqref{eq:continuity_simple_approx} as
 \begin{equation}
   \frac{\partial f_{i\in\text{particle}}^j}{\partial t} = - \frac{1}{n^{j}} \frac{\Phi_{i\text{,diff}}^{j+1/2} - \Phi_{i\text{,diff}}^{j-1/2}}{\Delta z^j} - \frac{1}{n^{j}} \frac{\Phi_{i\text{,advec}}^{j+1/2} - \Phi_{i\text{,advec}}^{j-1/2}}{\Delta z^j} + \frac{\sigma_i^j}{n^{j}}
 \end{equation}
-Applying a centered scheme to the diffusive fluxes follows the same procedure as we did with gas diffusion (Section \ref{sec:FV_particles}). To apply a first-order upwind scheme, we first recognize that falling particles means information is traveling from up to down in the model. Therefore, an upwind scheme approximates advective fluxes with a forward difference
+Applying a centered scheme to the diffusive fluxes follows the procedure shown in Section \ref{sec:FV_gases}. To apply a first-order upwind scheme, we first recognize that if particle are falling, then information is traveling from up to down in the model. Therefore, an upwind scheme approximates advective fluxes with a forward difference
 
 \begin{equation}
   \frac{\Phi_{i\text{,advec}}^{j+1/2} - \Phi_{i\text{,advec}}^{j-1/2}}{\Delta z^j} \approx \frac{\Phi_{i\text{,advec}}^{j+1} - \Phi_{i\text{,advec}}^{j}}{\Delta z^j} = \frac{(-w_i n f_i)^{j+1} - (-w_i n f_i)^{j}}{\Delta z^j}
@@ -423,7 +428,7 @@ and the upper boundary,
 
 \subsubsection{Summary}
 
-Equations \eqref{eq:dfdt_general} and \eqref{eq:dfdt_boundary} are a system of ordinary differential equations (ODEs) which are a finite volume approximation of our original system of PDEs (Equation \eqref{eq:continuity_simple}). The number of ODEs is the number evolving species multiplied by the number of atmospheric grid-cells. We often use about 100 species and 200 vertical layers resulting in $\sim$20,000 ODEs.
+Equations \eqref{eq:dfdt_general} and \eqref{eq:dfdt_boundary} are a system of ordinary differential equations (ODEs) which are a finite volume approximation of our original system of PDEs (Equation \eqref{eq:continuity_simple}). The number of ODEs is the number evolving species (gases + particles) multiplied by the number of atmospheric grid-cells. We often use about 100 species and 200 vertical layers resulting in $\sim$20,000 ODEs.
 
 \subsection{Solving the system of ordinary differential equations}
 
@@ -561,7 +566,7 @@ Here, $\lambda$ is the mean free path, which comes from the kinetic theory of ga
   $w_i$ & Fall velocity of a particle & cm s$^{-1}$ \\
   $\eta$ & Dynamic viscosity of air. Equation \eqref{eq:dynamic_viscosity}. & dynes s cm$^{-2}$ \\
   \end{tabularx}
-  \caption{Variables in \eqref{eq:continuity}}
+  \caption{Variables used in the text}
   \label{tab:variables}
   \end{table}
 
